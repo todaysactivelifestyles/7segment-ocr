@@ -81,7 +81,7 @@ def read_digit(image):
     else:
         dW = int(width * 0.35)
         dH = int(height * 0.15)
-        dHC = int(height * 0.05)
+        dHC = int(dH / 2)
 
         segments = [
             ((0, 0), (width, dH)),  # top
@@ -111,7 +111,7 @@ def main():
     cap = cv2.VideoCapture(0)
     arg = sys.argv
     if len(arg) == 0:
-        target_temp = 200
+        target_temp = 30
     else:
         target_temp = int(arg[1])
 
@@ -120,7 +120,7 @@ def main():
             _, image = cap.read()
             digits = searchdigits(image)
             temp = ""
-            for j, i in enumerate(digits):
+            for i in digits:
                 try:
                     predict = read_digit(i)
                     temp = temp + str(predict)
