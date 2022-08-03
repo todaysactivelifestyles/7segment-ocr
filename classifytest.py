@@ -108,8 +108,12 @@ def read_digit(image):
 
 def main():
 
-    target_temp = 30
     cap = cv2.VideoCapture(0)
+    arg = sys.argv
+    if len(arg) == 0:
+        target_temp = 200
+    else:
+        target_temp = int(arg[1])
 
     try:
         while True:
@@ -120,10 +124,10 @@ def main():
                 try:
                     predict = read_digit(i)
                     temp = temp + str(predict)
-                except KeyError as e:
+                except KeyError:
                     temp = ""
                     break
-            
+
             if temp == "":
                 continue
             else:
@@ -137,8 +141,6 @@ def main():
     except KeyboardInterrupt:
         GPIO.cleanup()
         sys.exit()
-
-        
 
 
 if __name__ == "__main__":
