@@ -5,6 +5,7 @@ import imutils
 import RPi.GPIO as GPIO
 import time
 import sys
+import argparse
 
 DIGITS_LOOKUP = {
     (1, 1, 1, 0, 1, 1, 1): 0,
@@ -16,7 +17,8 @@ DIGITS_LOOKUP = {
     (1, 1, 0, 1, 1, 1, 1): 6,
     (1, 0, 1, 0, 0, 1, 0): 7,
     (1, 1, 1, 1, 1, 1, 1): 8,
-    (1, 1, 1, 1, 0, 1, 1): 9
+    (1, 1, 1, 1, 0, 1, 1): 9,
+    (0, 1, 1, 1, 1, 1, 0): 'H'
 }
 
 gpio_relay = 21
@@ -109,11 +111,15 @@ def read_digit(image):
 def main():
 
     cap = cv2.VideoCapture(0)
-    arg = sys.argv
-    if len(arg) == 0:
-        target_temp = 30
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--temp")
+    args = parser.parse_args()
+
+    if args.temp:
+        target_temp = args.temp
     else:
-        target_temp = int(arg[1])
+        target_temp = 30
+
 
     try:
         while True:
@@ -129,6 +135,7 @@ def main():
                     break
 
             if temp == "":
+                time.sleep(1)
                 continue
             else:
                 print(temp)
