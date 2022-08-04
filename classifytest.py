@@ -1,11 +1,14 @@
+from asyncio import WriteTransport
 import cv2
 import numpy as np
 from imutils.perspective import four_point_transform
 import imutils
 import RPi.GPIO as GPIO
 import time
+import datetime
 import sys
 import argparse
+import csv
 
 DIGITS_LOOKUP = {
     (1, 1, 1, 0, 1, 1, 1): 0,
@@ -113,12 +116,20 @@ def main():
     cap = cv2.VideoCapture(0)
     parser = argparse.ArgumentParser()
     parser.add_argument("--temp")
+    parser.add_argument("--log", action="store_true")
     args = parser.parse_args()
 
     if args.temp:
         target_temp = args.temp
     else:
         target_temp = 30
+
+    if args.log:
+        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
+        yyyyMMddHHmmss = now.strftime("%Y%m%d%H%M%S")
+        f = open(f"./log_{yyyyMMddHHmmss}.csv")
+        writer = csv.writer(f)
+        time_init = time.time()
 
 
     try:
@@ -144,9 +155,17 @@ def main():
                     GPIO.output(gpio_relay, 1)
                 else:
                     GPIO.output(gpio_relay, 0)
+                
+                if args.log:
+                    time_elapsed = time.time() - time_init              
+                    writer.writerow([time_elapsed, temp])
 
     except KeyboardInterrupt:
         GPIO.cleanup()
+
+        if args.log:
+            f.close()
+            
         sys.exit()
 
 
