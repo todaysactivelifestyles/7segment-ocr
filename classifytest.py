@@ -120,14 +120,14 @@ def main():
     args = parser.parse_args()
 
     if args.temp:
-        target_temp = args.temp
+        target_temp = int(args.temp)
     else:
         target_temp = 30
 
     if args.log:
         now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
         yyyyMMddHHmmss = now.strftime("%Y%m%d%H%M%S")
-        f = open(f"./log_{yyyyMMddHHmmss}.csv")
+        f = open(f"./log_{yyyyMMddHHmmss}.csv", 'w')
         writer = csv.writer(f)
         time_init = time.time()
 
