@@ -1,4 +1,3 @@
-from asyncio import WriteTransport
 import cv2
 import numpy as np
 from imutils.perspective import four_point_transform
@@ -11,16 +10,16 @@ import argparse
 import csv
 
 DIGITS_LOOKUP = {
-    (1, 1, 1, 0, 1, 1, 1): 0,
-    (0, 1, 0, 0, 1, 0, 0): 1,
-    (1, 0, 1, 1, 1, 0, 1): 2,
-    (1, 0, 1, 1, 0, 1, 1): 3,
-    (0, 1, 1, 1, 0, 1, 0): 4,
-    (1, 1, 0, 1, 0, 1, 1): 5,
-    (1, 1, 0, 1, 1, 1, 1): 6,
-    (1, 0, 1, 0, 0, 1, 0): 7,
-    (1, 1, 1, 1, 1, 1, 1): 8,
-    (1, 1, 1, 1, 0, 1, 1): 9,
+    (1, 1, 1, 0, 1, 1, 1): '0',
+    (0, 1, 0, 0, 1, 0, 0): '1',
+    (1, 0, 1, 1, 1, 0, 1): '2',
+    (1, 0, 1, 1, 0, 1, 1): '3',
+    (0, 1, 1, 1, 0, 1, 0): '4',
+    (1, 1, 0, 1, 0, 1, 1): '5',
+    (1, 1, 0, 1, 1, 1, 1): '6',
+    (1, 0, 1, 0, 0, 1, 0): '7',
+    (1, 1, 1, 1, 1, 1, 1): '8',
+    (1, 1, 1, 1, 0, 1, 1): '9',
     (0, 1, 1, 1, 1, 1, 0): 'H'
 }
 
@@ -78,7 +77,7 @@ def searchdigits(image):
 
 def read_digit(image):
 
-    height, width = image.shape[:2]
+    height, width, _ = image.shape
 
     if width < 20:
         return 1
@@ -140,7 +139,7 @@ def main():
             for i in digits:
                 try:
                     predict = read_digit(i)
-                    temp = temp + str(predict)
+                    temp = temp + predict
                 except KeyError:
                     temp = ""
                     break
@@ -151,7 +150,7 @@ def main():
             else:
                 print(temp)
                 time.sleep(1)
-                if int(temp) <= target_temp:
+                if int(temp) < target_temp:
                     GPIO.output(gpio_relay, 1)
                 else:
                     GPIO.output(gpio_relay, 0)
