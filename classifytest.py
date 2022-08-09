@@ -27,41 +27,48 @@ gpio_relay = 21
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(gpio_relay, GPIO.OUT)
 
+def sort_4pts_clockwise(pts):
+    sorted_y = pts[np.argsort(pts[:, 1]), :]
+    upper = sorted_y[2:]
+    lower = sorted_y[:2]
+    upper = upper[np.argsort(upper[:, 0]), :]
+    lower = lower[np.argsort(-lower[:, 0]), :]
+    return np.vstack([upper, lower])
+
 def searchdigits(image):
     image = imutils.resize(image, height=500)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     edged = cv2.Canny(blurred, 50, 200, 255)
 
-    cnts, _ = cv2.findContours(
-        edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
-    displayCnt = None
+    contours, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    display_contour = None
     # loop over the contours
-    for c in cnts:
+    for c in contours:
         # approximate the contour
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * peri, True)
         # if the contour has four vertices, then we have found the thermostat display
         if len(approx) == 4:
-            displayCnt = approx
+            display_contour = approx
             break
 
-    warped = four_point_transform(gray, displayCnt.reshape(4, 2))
+    warped = four_point_transform(gray, display_contour.reshape(4, 2))
 
-    _, thresh = cv2.threshold(warped, 50, 255, cv2.THRESH_BINARY_INV)
+    _, threshold = cv2.threshold(warped, 50, 255, cv2.THRESH_BINARY_INV)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-    thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
-    thresh = cv2.dilate(thresh, np.ones((7, 1), np.uint8), iterations=1)
+    threshold = cv2.morphologyEx(threshold, cv2.MORPH_OPEN, kernel)
+    threshold = cv2.dilate(threshold, np.ones((7, 1), np.uint8), iterations=1)
 
-    thresh = thresh[20:115, 10:140]
+    threshold = threshold[20:115, 10:140]
 
     # find contours in the thresholded image, then initialize the digit contours lists
-    cnts, _ = cv2.findContours(
-        thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(
+        threshold.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     digitCnts = []
     # loop over the digit area candidates
-    for c in cnts:
+    for c in contours:
         (x, y, w, h) = cv2.boundingRect(c)
         if w >= 10 and (h > 50):
             digitCnts.append(cv2.boundingRect(c))
@@ -70,7 +77,7 @@ def searchdigits(image):
     digits = []
     for c in digitCnts:
         x, y, w, h = c
-        digits.append(thresh[y:y+h, x:x+w])
+        digits.append(threshold[y:y+h, x:x+w])
 
     return digits
 
