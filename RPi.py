@@ -84,7 +84,7 @@ def searchdigits(image):
 
 def read_digit(image):
 
-    height, width, _ = image.shape
+    height, width = image.shape
 
     if width < 20:
         return 1
