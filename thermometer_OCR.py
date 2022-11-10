@@ -1,11 +1,15 @@
 import cv2
 import numpy as np
-from imutils.perspective import four_point_transform
-import imutils
 import sys
 import time
 
 DIGITS_LOOKUP = {
+    #   1
+    #  2 3
+    #   4
+    #  5 6
+    #   7
+
     (1, 1, 1, 0, 1, 1, 1): '0',
     (0, 1, 0, 0, 1, 0, 0): '1',
     (1, 0, 1, 1, 1, 0, 1): '2',
@@ -19,16 +23,31 @@ DIGITS_LOOKUP = {
     (0, 1, 1, 1, 1, 1, 0): 'H'
 }
 
-def sort_4pts_clockwise(pts):
+def sort_4pts(pts):
     sorted_y = pts[np.argsort(pts[:, 1]), :]
-    upper = sorted_y[2:]
-    lower = sorted_y[:2]
-    upper = upper[np.argsort(upper[:, 0]), :]
-    lower = lower[np.argsort(-lower[:, 0]), :]
-    return np.vstack([upper, lower])
+    upper = sorted_y[:2]
+    lower = sorted_y[2:]
+    (upper_l, upper_r) = upper[np.argsort(upper[:, 0]), :]
+    (lower_r, lower_l) = lower[np.argsort(-lower[:, 0]), :]
+    print(np.array([upper_l, upper_r, lower_r, lower_l]))
+    return np.array([upper_l, upper_r, lower_r, lower_l], dtype=np.float32)
+
+def four_point_transform(image, pts):
+    pts = sort_4pts(pts)
+    dst = np.array([(0,0), (310, 0), (310, 220), (0, 220)], dtype=np.float32)
+    M = cv2.getPerspectiveTransform(pts, dst)
+    warped = cv2.warpPerspective(image, M, (310, 220))
+
+    # return the warped image
+    return warped
+
 
 def searchdigits(image):
-    image = imutils.resize(image, height=500)
+    (h, w) = image.shape[:2]
+    dst_height = 500
+    r = dst_height / float(h)
+    dim = (int(w * r), dst_height)
+    image = cv2.resize(image, dsize=dim)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     edged = cv2.Canny(blurred, 50, 200, 255)
@@ -111,8 +130,6 @@ def read_digit(image):
 
 def main():
 
-    cap = cv2.VideoCapture(2)
-   
     try:
         while True:
             _, image = cap.read()

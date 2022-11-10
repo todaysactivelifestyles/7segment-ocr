@@ -1,5 +1,5 @@
 import cv2
-from Relay_abstract import NOrelay
+from relay_abstract import NOrelay
 import thermometer_OCR
 import time
 import datetime
@@ -18,7 +18,6 @@ def mainloop(cap: cv2.VideoCapture, Relay: NOrelay, target_temp: int, logging: b
     try:
         while True:
             _, image = cap.read()
-            cv2.imwrite("a.jpg", image)
             digits = thermometer_OCR.searchdigits(image)
             temp = ""
             for i in digits:
@@ -35,7 +34,6 @@ def mainloop(cap: cv2.VideoCapture, Relay: NOrelay, target_temp: int, logging: b
                 continue
             else:
                 print(temp)
-                time.sleep(1)
                 if int(temp) < target_temp:
                     Relay.on()
                 else:
@@ -45,6 +43,8 @@ def mainloop(cap: cv2.VideoCapture, Relay: NOrelay, target_temp: int, logging: b
                     time_elapsed = time.time() - time_init              
                     writer.writerow([time_elapsed, temp])
 
+                time.sleep(1)
+                
     except KeyboardInterrupt:
 
         if logging:

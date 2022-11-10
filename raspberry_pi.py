@@ -1,5 +1,5 @@
 import cv2
-from Relay_abstract import NOrelay
+from relay_abstract import NOrelay
 import toaster_control
 import RPi.GPIO as GPIO
 import sys
