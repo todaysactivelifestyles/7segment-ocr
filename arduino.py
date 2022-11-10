@@ -5,7 +5,7 @@ import serial
 import sys
 import argparse
 
-class NOrelay_over_Arduino(NOrelay):
+class NOrelayOverArduino(NOrelay):
 
     def __init__(self, ser):
         self.ser = ser

@@ -5,7 +5,7 @@ import RPi.GPIO as GPIO
 import sys
 import argparse
 
-class NOrelay_over_RPi(NOrelay):
+class NOrelayOverRPi(NOrelay):
 
     def __init__(self, gpio_relay):
         self.gpio = gpio_relay

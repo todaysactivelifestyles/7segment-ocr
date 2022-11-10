@@ -130,6 +130,7 @@ def read_digit(image):
 
 def main():
 
+    cap = cv2.VideoCapture(2)
     try:
         while True:
             _, image = cap.read()
