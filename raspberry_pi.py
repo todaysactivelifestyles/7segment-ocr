@@ -16,13 +16,15 @@ class NOrelayOverRPi(NOrelay):
     def off(self):
         GPIO.output(self.gpio, 0)
 
+    def close(self):
+        GPIO.cleanup()
 
 def main():
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(gpio_relay, GPIO.OUT)
     gpio_relay = 21
-    SSR = NOrelay_over_RPi(gpio_relay)
+    SSR = NOrelayOverRPi(gpio_relay)
 
     cap = cv2.VideoCapture(0)
 
@@ -37,7 +39,6 @@ def main():
 
     toaster_control.mainloop(cap, SSR, target_temp, args.log)
     
-    GPIO.cleanup()
     sys.exit()
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ class NOrelayOverArduino(NOrelay):
 def main():
 
     ser = serial.Serial("/dev/ttyACM0", 9600)
-    SSR = NOrelay_over_Arduino(ser)
+    SSR = NOrelayOverArduino(ser)
     cap = cv2.VideoCapture(2)
     parser = argparse.ArgumentParser()
     parser.add_argument("--temp")
@@ -37,7 +37,6 @@ def main():
 
     toaster_control.mainloop(cap, SSR, target_temp, args.log)
 
-    SSR.close()
     sys.exit()
 
 if __name__ == "__main__":

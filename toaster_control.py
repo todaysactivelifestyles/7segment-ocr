@@ -44,9 +44,10 @@ def mainloop(cap: cv2.VideoCapture, Relay: NOrelay, target_temp: int, logging: b
                     writer.writerow([time_elapsed, temp])
 
                 time.sleep(1)
-                
-    except KeyboardInterrupt:
 
+    except KeyboardInterrupt:
+        
+        Relay.close()
         if logging:
             f.close()
         
